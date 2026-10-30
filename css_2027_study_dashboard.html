@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>CSS 2027 | Study Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { ink: '#0f172a', brand: '#2563eb', mint: '#14b8a6' } } } };
+  </script>
+  <style>
+    :root { color-scheme: light; }
+    html { scroll-behavior: smooth; }
+    body { background:#f5f7fb; }
+    .nav-active { background:#eaf1ff; color:#1d4ed8; font-weight:700; }
+    .progress-track { background:#e5e7eb; border-radius:999px; overflow:hidden; height:9px; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,#2563eb,#14b8a6); border-radius:999px; transition:width .25s; }
+    .topic-row:hover { background:#f8fafc; }
+    .hide-scrollbar::-webkit-scrollbar { display:none; }
+    textarea { resize:vertical; }
+    @media print {
+      aside, .no-print, button, input[type=checkbox] { display:none !important; }
+      main { margin:0 !important; padding:0 !important; }
+      .print-card { break-inside:avoid; box-shadow:none !important; border:1px solid #ddd !important; }
+      body { background:white; }
+    }
+  </style>
+</head>
+<body class="text-slate-800">
+<div class="min-h-screen lg:flex">
+  <aside class="no-print lg:fixed lg:inset-y-0 lg:w-64 bg-slate-950 text-white p-5 flex flex-col z-20">
+    <div class="flex items-center gap-3 mb-7">
+      <div class="w-11 h-11 rounded-2xl bg-blue-600 grid place-items-center font-black text-lg">27</div>
+      <div><div class="font-bold text-lg">CSS 2027</div><div class="text-xs text-slate-400">Personal study space</div></div>
+    </div>
+    <div class="rounded-2xl bg-slate-900 p-4 mb-6">
+      <div class="text-xs text-slate-400 mb-1">EXAM COUNTDOWN</div>
+      <div id="countdown" class="text-2xl font-bold">-- days</div>
+      <div class="text-xs text-slate-400 mt-1">27 January 2027</div>
+    </div>
+    <nav class="space-y-1 text-sm" id="navigation">
+      <button data-view="dashboard" class="nav-btn nav-active w-full text-left px-3 py-2.5 rounded-xl">▦ &nbsp; Dashboard</button>
+      <button data-view="timetable" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-900">◷ &nbsp; Daily timetable</button>
+      <button data-view="calendar" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-900">▦ &nbsp; Date-wise plan</button>
+      <button data-view="subjects" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-900">▤ &nbsp; Subjects & topics</button>
+      <button data-view="notes" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-900">✎ &nbsp; My notes</button>
+      <button data-view="english" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-900">Aa &nbsp; Essay & Précis</button>
+      <button data-view="tests" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-900">✓ &nbsp; Tests & past papers</button>
+    </nav>
+    <div class="mt-auto pt-6 text-xs text-slate-500">Your preparation. Your pace.<br/>Progress is saved on this device.</div>
+  </aside>
+
+  <main class="w-full lg:ml-64 p-4 sm:p-6 lg:p-9 max-w-[1500px]">
+    <header class="flex flex-wrap items-center justify-between gap-3 mb-7">
+      <div>
+        <div class="text-xs uppercase tracking-[.18em] text-blue-600 font-bold">27 January 2027 • CSS preparation</div>
+        <h1 id="pageTitle" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Good study day!</h1>
+        <p class="text-sm text-slate-500 mt-1" id="todayLabel"></p>
+      </div>
+      <div class="flex gap-2 no-print">
+        <button onclick="window.print()" class="px-3 py-2 rounded-xl border bg-white text-sm font-semibold">Print</button>
+        <button onclick="exportData()" class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold">Export backup</button>
+      </div>
+    </header>
+
+    <section id="view-dashboard" class="view space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="print-card bg-white rounded-2xl p-5 border border-slate-200">
+          <div class="text-xs text-slate-500">OVERALL TOPIC PROGRESS</div><div class="text-3xl font-black mt-2" id="overallPercent">0%</div>
+          <div class="progress-track mt-3"><div id="overallBar" class="progress-fill" style="width:0%"></div></div>
+          <div class="text-xs text-slate-500 mt-2" id="topicCount">0 of 0 topics completed</div>
+        </div>
+        <div class="print-card bg-white rounded-2xl p-5 border border-slate-200">
+          <div class="text-xs text-slate-500">DAYS UNTIL EXAM</div><div class="text-3xl font-black mt-2" id="daysLeft">--</div>
+          <div class="text-xs text-slate-500 mt-2">Examination: 27 January 2027</div>
+        </div>
+        <div class="print-card bg-white rounded-2xl p-5 border border-slate-200">
+          <div class="text-xs text-slate-500">STUDY HOURS TARGET</div><div class="text-3xl font-black mt-2">7.5 hrs</div>
+          <div class="text-xs text-slate-500 mt-2">Five focused study blocks</div>
+        </div>
+        <div class="print-card bg-white rounded-2xl p-5 border border-slate-200">
+          <div class="text-xs text-slate-500">NOTES SAVED</div><div class="text-3xl font-black mt-2" id="notesCount">0</div>
+          <div class="text-xs text-slate-500 mt-2">Subject and topic notes</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+        <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+          <div class="flex justify-between items-center gap-3 mb-4"><div><h2 class="font-bold text-lg">Subject progress</h2><p class="text-xs text-slate-500">Mark topics complete in Subjects & topics.</p></div><button class="text-sm text-blue-600 font-semibold" onclick="showView('subjects')">Open subjects →</button></div>
+          <div id="subjectProgress" class="space-y-4"></div>
+        </div>
+        <div class="bg-slate-900 text-white rounded-2xl p-5">
+          <h2 class="font-bold text-lg">Today's study checklist</h2><p class="text-xs text-slate-400 mt-1 mb-4">Tick each task as you finish it.</p>
+          <div id="dailyChecklist" class="space-y-3"></div>
+          <div class="border-t border-slate-700 mt-5 pt-4 flex justify-between text-sm"><span class="text-slate-400">Daily completion</span><b id="dailyPercent">0%</b></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5">
+          <h2 class="font-bold text-lg">Today's timetable</h2><p class="text-xs text-slate-500 mb-4">Your 7.5-hour routine</p>
+          <div id="todaySchedule" class="space-y-3"></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5">
+          <h2 class="font-bold text-lg">Study milestones</h2><p class="text-xs text-slate-500 mb-4">Your preparation phases</p>
+          <div class="space-y-4">
+            <div><div class="flex justify-between text-sm"><b>First syllabus coverage</b><span>25 Dec 2026</span></div><div class="text-xs text-slate-500 mt-1">Finish first reading and core notes for all papers.</div></div>
+            <div><div class="flex justify-between text-sm"><b>Revision & past papers</b><span>26 Dec – 8 Jan</span></div><div class="text-xs text-slate-500 mt-1">Revise topics and solve previous questions.</div></div>
+            <div><div class="flex justify-between text-sm"><b>Mocks & second revision</b><span>9–22 Jan</span></div><div class="text-xs text-slate-500 mt-1">Timed writing, mock tests and weak areas.</div></div>
+            <div><div class="flex justify-between text-sm"><b>Final revision</b><span>23–26 Jan</span></div><div class="text-xs text-slate-500 mt-1">Short notes, formulas, facts and essay outlines.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-timetable" class="view hidden space-y-5">
+      <div class="bg-white rounded-2xl border p-5">
+        <h2 class="text-xl font-bold">Fixed daily timetable</h2><p class="text-sm text-slate-500 mt-1">Follow these blocks Monday to Saturday. Sunday is for testing and review.</p>
+        <div class="mt-5 grid gap-3 sm:grid-cols-2">
+          <div class="rounded-xl bg-blue-50 p-4"><b>7:00–9:00 AM</b><div class="text-sm mt-1">Session 1 • Main subject</div><div class="text-xs text-slate-500 mt-1">New topic, concepts and notes • 2 hours</div></div>
+          <div class="rounded-xl bg-indigo-50 p-4"><b>9:30–11:30 AM</b><div class="text-sm mt-1">Session 2 • Second subject</div><div class="text-xs text-slate-500 mt-1">Optional or compulsory subject • 2 hours</div></div>
+          <div class="rounded-xl bg-teal-50 p-4"><b>1:00–2:30 PM</b><div class="text-sm mt-1">Session 3 • Third subject</div><div class="text-xs text-slate-500 mt-1">Revision, questions and 30 min current affairs • 1.5 hours</div></div>
+          <div class="rounded-xl bg-amber-50 p-4"><b>4:00–5:00 PM</b><div class="text-sm mt-1">English Essay</div><div class="text-xs text-slate-500 mt-1">Outline, thesis, arguments and writing • 1 hour</div></div>
+          <div class="rounded-xl bg-rose-50 p-4"><b>7:00–8:00 PM</b><div class="text-sm mt-1">Precis & Composition</div><div class="text-xs text-slate-500 mt-1">Precis, comprehension, grammar • 1 hour</div></div>
+          <div class="rounded-xl bg-slate-100 p-4"><b>Sunday</b><div class="text-sm mt-1">Weekly test and correction</div><div class="text-xs text-slate-500 mt-1">2–3 hours; keep the rest of the day lighter.</div></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl border p-5">
+        <h2 class="font-bold text-lg mb-3">Weekly subject rotation</h2>
+        <div class="overflow-x-auto"><table class="w-full text-sm min-w-[650px]"><thead class="text-left text-slate-500 border-b"><tr><th class="py-3">Day</th><th>7:00–9:00</th><th>9:30–11:30</th><th>1:00–2:30</th></tr></thead><tbody id="weeklyRotation"></tbody></table></div>
+        <p class="text-xs text-slate-500 mt-3">Essay and Precis are daily. Current Affairs is included in Session 3, with dedicated days on Monday, Wednesday and Saturday.</p>
+      </div>
+    </section>
+
+    <section id="view-calendar" class="view hidden space-y-5">
+      <div class="bg-white rounded-2xl border p-5">
+        <div class="flex flex-wrap justify-between gap-3 items-center"><div><h2 class="text-xl font-bold">Date-wise study plan</h2><p class="text-sm text-slate-500">31 October 2026 – 26 January 2027</p></div><select id="calendarFilter" class="border rounded-xl px-3 py-2 text-sm" onchange="renderCalendar()"><option value="all">All phases</option><option value="1">First coverage</option><option value="2">Revision</option><option value="3">Mocks & second revision</option><option value="4">Final revision</option></select></div>
+        <div id="calendarList" class="mt-5 space-y-3"></div>
+      </div>
+    </section>
+
+    <section id="view-subjects" class="view hidden space-y-5">
+      <div class="bg-white rounded-2xl border p-5">
+        <div class="flex flex-wrap justify-between gap-3 items-center"><div><h2 class="text-xl font-bold">Subjects & topic tracker</h2><p class="text-sm text-slate-500">Tick a topic when you have studied and revised it.</p></div><input id="subjectSearch" oninput="renderSubjects()" placeholder="Search subjects or topics..." class="border rounded-xl px-3 py-2 text-sm w-full sm:w-64"/></div>
+        <div id="subjectList" class="mt-5 space-y-4"></div>
+      </div>
+    </section>
+
+    <section id="view-notes" class="view hidden space-y-5">
+      <div class="bg-white rounded-2xl border p-5">
+        <h2 class="text-xl font-bold">My CSS notes</h2><p class="text-sm text-slate-500 mt-1">Write definitions, explanations, examples, laws, references and answer outlines. Notes save automatically on this device.</p>
+        <div class="grid sm:grid-cols-2 gap-3 mt-5">
+          <select id="noteSubject" class="border rounded-xl p-3" onchange="populateNoteTopics()"></select>
+          <select id="noteTopic" class="border rounded-xl p-3" onchange="loadNote()"></select>
+        </div>
+        <input id="noteTitle" class="border rounded-xl p-3 w-full mt-3" placeholder="Note title (e.g. Principles of Criminal Investigation)"/>
+        <textarea id="noteBody" class="border rounded-xl p-3 w-full mt-3 min-h-[260px]" placeholder="Write your CSS notes here...
+
+1. Definition
+2. Introduction
+3. Main arguments / headings
+4. Pakistani examples
+5. Laws, facts and references
+6. Critical analysis
+7. Recommendations
+8. Conclusion"></textarea>
+        <div class="flex flex-wrap gap-2 mt-3"><button onclick="saveNote()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm">Save note</button><button onclick="clearNoteEditor()" class="border px-4 py-2.5 rounded-xl text-sm">New note</button><button onclick="deleteNote()" class="border border-red-200 text-red-600 px-4 py-2.5 rounded-xl text-sm">Delete note</button></div>
+        <div id="noteStatus" class="text-xs text-teal-700 mt-2"></div>
+      </div>
+      <div class="bg-white rounded-2xl border p-5"><h3 class="font-bold mb-3">Saved notes</h3><div id="savedNotes" class="space-y-2 text-sm"></div></div>
+    </section>
+
+    <section id="view-english" class="view hidden space-y-5">
+      <div class="bg-white rounded-2xl border p-5">
+        <h2 class="text-xl font-bold">English improvement tracker</h2><p class="text-sm text-slate-500 mt-1">Your weakest area gets a dedicated daily hour for each paper.</p>
+        <div class="grid md:grid-cols-2 gap-5 mt-5">
+          <div class="rounded-2xl bg-blue-50 p-4">
+            <h3 class="font-bold text-blue-900">Essay practice</h3><p class="text-xs text-blue-700 mt-1">One outline daily; one complete essay or two detailed outlines weekly.</p>
+            <div class="mt-4 space-y-2" id="essayTasks"></div>
+          </div>
+          <div class="rounded-2xl bg-teal-50 p-4">
+            <h3 class="font-bold text-teal-900">Precis & Composition</h3><p class="text-xs text-teal-700 mt-1">One passage daily, vocabulary and grammar practice.</p>
+            <div class="mt-4 space-y-2" id="precisTasks"></div>
+          </div>
+        </div>
+        <div class="mt-5"><h3 class="font-bold mb-2">Essay topic bank</h3><div class="flex flex-wrap gap-2" id="essayBank"></div></div>
+      </div>
+    </section>
+
+    <section id="view-tests" class="view hidden space-y-5">
+      <div class="bg-white rounded-2xl border p-5">
+        <h2 class="text-xl font-bold">Weekly tests & past-paper practice</h2><p class="text-sm text-slate-500 mt-1">Record your attempts and marks to identify weak areas.</p>
+        <form id="testForm" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+          <input id="testDate" type="date" class="border rounded-xl p-3" required/>
+          <select id="testSubject" class="border rounded-xl p-3"></select>
+          <input id="testScore" type="number" min="0" max="100" placeholder="Marks obtained" class="border rounded-xl p-3" required/>
+          <input id="testOutOf" type="number" min="1" max="100" value="20" placeholder="Out of" class="border rounded-xl p-3" required/>
+          <input id="testDetails" placeholder="Question / paper / mistakes" class="border rounded-xl p-3 sm:col-span-2 lg:col-span-3"/>
+          <button class="bg-slate-900 text-white rounded-xl p-3 font-semibold">Add test result</button>
+        </form>
+        <div id="testResults" class="mt-5 space-y-2"></div>
+      </div>
+    </section>
+
+    <footer class="text-xs text-slate-400 text-center py-8">CSS 2027 Study Dashboard • Your data stays in this browser unless you export it.</footer>
+  </main>
+</div>
+
+<script>
+const subjects = [
+ {name:"Pakistan Affairs",group:"Compulsory",topics:["Decline of Muslim rule in the subcontinent","Sir Syed Ahmad Khan and Aligarh Movement","Two-Nation Theory","Pakistan Movement: 1906–1930","Pakistan Movement: 1930–1947","Constitutional development: 1947–1956","Constitutions of 1956 and 1962","Constitution of 1973","Democracy, military rule and political instability","Federalism and provincial autonomy","Governance and institutions","Economy, poverty, debt and taxation","Energy, water and population challenges","Pakistan foreign policy","Pakistan-China relations and CPEC","Pakistan-India relations and Kashmir","Pakistan-Afghanistan relations","Education, security and social challenges"]},
+ {name:"Current Affairs",group:"Compulsory",topics:["Pakistan's political developments","Pakistan's economy, IMF and debt","Taxation, exports and economic reforms","Pakistan's foreign policy","Pakistan-China relations and CPEC","Pakistan-India relations","Afghanistan and South Asia","US-China relations and global power politics","Middle East, Palestine and Israel","Russia-Ukraine war and European security","United Nations and global governance","OIC, SCO and BRICS","Climate change and water security","Food security and sustainable development","Global economy, trade and globalization","Artificial intelligence and technology","International security and terrorism","Current affairs: October 2026–January 2027"]},
+ {name:"English Essay",group:"Compulsory",topics:["Essay structure and planning","Thesis statement and outline","Introduction and conclusion writing","Paragraph unity and coherence","Education and educational reforms","Women empowerment and gender equality","Democracy and governance","Political instability in Pakistan","Economy, poverty and unemployment","Climate change and environmental challenges","Science, technology and artificial intelligence","Pakistan's national challenges","International relations and globalization","Social media and society","Timed full essay practice"]},
+ {name:"English Precis & Composition",group:"Compulsory",topics:["Reading comprehension and central idea","Precis rules and techniques","Precis title and word count","Comprehension questions","Grammar and sentence correction","Vocabulary: synonyms and antonyms","Pair of words","Idioms and phrasal verbs","Translation and sentence construction","Punctuation","Direct and indirect speech","Past-paper precis practice","Timed full composition paper"]},
+ {name:"Islamic Studies",group:"Compulsory",topics:["Fundamental beliefs and pillars of Islam","Seerat-un-Nabi (PBUH): Makkan life","Seerat-un-Nabi (PBUH): Madinan life","Islamic concept of individual and society","Human rights in Islam","Women's rights in Islam","Islamic political system and governance","Islamic economic system, Zakat and Riba","Social justice and welfare in Islam","Ijtihad, Ijma and Qiyas","Islam and contemporary challenges","Islam, science and knowledge","Extremism, tolerance and interfaith harmony"]},
+ {name:"General Science & Ability",group:"Compulsory",topics:["Physics: motion, force and energy","Physics: heat and basic principles","Chemistry: matter, elements and compounds","Chemistry: chemical reactions","Biology: cells and human body","Genetics and heredity","Human diseases, health and nutrition","Computer science and information technology","Space science and astronomy","Earth science and natural disasters","Climate and scientific developments","Arithmetic and percentages","Ratios, averages and proportions","Algebra and basic equations","Geometry and measurement","Probability and statistics","Logical and analytical reasoning","Problem solving and data interpretation"]},
+ {name:"Political Science Paper I",group:"Optional",topics:["Meaning, nature and scope of Political Science","State, sovereignty, power and authority","Political ideologies: liberalism and socialism","Marxism and other political ideologies","Democracy, liberty, equality and justice","Plato and Aristotle","Machiavelli and Hobbes","Locke and Rousseau","Bentham and J.S. Mill","Hegel and Karl Marx","Al-Farabi and Al-Mawardi","Ibn Khaldun and Muslim political thought","Allama Iqbal's political thought","Political institutions and participation"]},
+ {name:"Political Science Paper II",group:"Optional",topics:["Comparative politics: meaning and approaches","Parliamentary and presidential systems","United Kingdom political system","United States political system","China's political system","Russia's political system","Political system of Pakistan","Constitutional development in Pakistan","Political parties and pressure groups","Elections and political participation","Pakistan's foreign policy","International relations and institutions"]},
+ {name:"Environmental Science",group:"Optional",topics:["Introduction, scope and principles of environmental science","Ecosystems and ecological balance","Food chains, food webs and biogeochemical cycles","Biodiversity and conservation","Natural resources and sustainable development","Air pollution","Water and soil pollution","Noise pollution and waste management","Climate change and global warming","Environmental Impact Assessment (EIA)","Environmental biotechnology","Environmental laws and policies","International environmental agreements","Environmental challenges in Pakistan"]},
+ {name:"Criminology",group:"Optional",topics:["Introduction, nature and scope of criminology","Classical and positivist schools of criminology","Sociological and psychological theories of crime","Types and causes of crime","Juvenile delinquency","Organized crime and terrorism","Criminal justice system in Pakistan","Police, courts and prisons","Criminal investigation: principles and objectives","Preliminary investigation and intelligence operations","Database and electronic investigation","Forensic investigation and crime scene","Gathering information from persons","Interviewing and interrogation techniques","Criminal investigation analysis","Legal and ethical guidelines for investigators","Stop and frisk operations","Arrest procedures, search and seizure","UNAFEI, INTERPOL, EUROPOL, UNODC and UNICEF","International policing and criminal justice monitoring"]},
+ {name:"Punjabi",group:"Optional",topics:["Origin and development of Punjabi language","Punjabi grammar and linguistic features","Sufi poetry and its characteristics","Baba Farid","Shah Hussain","Sultan Bahu","Bulleh Shah","Waris Shah and Heer","Modern Punjabi poets and writers","Punjabi prose and fiction","Folk literature and oral traditions","Punjabi culture, traditions and society","Idioms and proverbs","Literary criticism and past-paper practice"]},
+ {name:"European History",group:"Optional",topics:["French Revolution: causes and events","Napoleon Bonaparte and reforms","Congress of Vienna and Metternich","Revolutions of 1830 and 1848","Unification of Italy","Unification of Germany","Industrial Revolution and nationalism","Imperialism and colonial rivalries","First World War and consequences","Russian Revolution","Fascism and Nazism","Second World War","Cold War and post-war Europe","European integration"]}
+];
+
+const rotation = [
+ ["Monday","Pakistan Affairs","Criminology","Current Affairs"],
+ ["Tuesday","General Science & Ability","Environmental Science","Punjabi"],
+ ["Wednesday","Islamic Studies","Political Science Paper I","Current Affairs"],
+ ["Thursday","Pakistan Affairs","European History","Criminology"],
+ ["Friday","Political Science Paper II","Environmental Science","Punjabi"],
+ ["Saturday","General Science & Ability","European History","Current Affairs"],
+ ["Sunday","Political Science / weak subject","Weekly test","Test correction"]
+];
+
+const firstWeeks = [
+ ["31 Oct 2026","GSA: Physics basics","European History: French Revolution","Current Affairs: Pakistan economy"],
+ ["1 Nov 2026","Political Science I: Meaning and scope","Weekly test","Test correction"],
+ ["2 Nov 2026","Pakistan: Decline of Muslims","Criminology: Introduction","Current Affairs: IMF"],
+ ["3 Nov 2026","GSA: Motion and force","Environmental Science: Introduction","Punjabi: Origin"],
+ ["4 Nov 2026","Islamic Studies: Fundamental beliefs","Political Science I: State","Current Affairs: Pakistan politics"],
+ ["5 Nov 2026","Pakistan: Sir Syed and Aligarh Movement","European History: Causes of French Revolution","Criminology: Schools of thought"],
+ ["6 Nov 2026","Political Science II: Comparative politics","Environmental Science: Ecosystems","Punjabi: Language development"],
+ ["7 Nov 2026","GSA: Energy and heat","European History: Napoleon","Current Affairs: Foreign policy"],
+ ["8 Nov 2026","Political Science I: Sovereignty","Weekly test","Test correction"],
+ ["9 Nov 2026","Pakistan: Two-Nation Theory","Criminology: Classical and positivist schools","Current Affairs: Pakistan economy"],
+ ["10 Nov 2026","GSA: Chemistry basics","Environmental Science: Food chains and cycles","Punjabi: Grammar"],
+ ["11 Nov 2026","Islamic Studies: Pillars of Islam","Political Science I: Power and authority","Current Affairs: China-Pakistan"],
+ ["12 Nov 2026","Pakistan Movement 1906–1930","European History: Congress of Vienna","Criminology: Sociological theories"],
+ ["13 Nov 2026","Political Science II: Comparative approaches","Environmental Science: Biodiversity","Punjabi: Grammar exercises"],
+ ["14 Nov 2026","GSA: Elements and compounds","European History: Revolutions of 1830 and 1848","Current Affairs: Middle East"],
+ ["15 Nov 2026","Political Science I: Liberty and equality","Weekly test","Test correction"],
+ ["16 Nov 2026","Pakistan Movement 1930–1940","Criminology: Types and causes of crime","Current Affairs: Palestine"],
+ ["17 Nov 2026","GSA: Biology and cells","Environmental Science: Natural resources","Punjabi: Sufi poetry"],
+ ["18 Nov 2026","Islamic Studies: Seerat, Makkan period","Political Science I: Justice","Current Affairs: UN"],
+ ["19 Nov 2026","Pakistan Movement 1940–1947","European History: Unification of Italy","Criminology: Juvenile delinquency"],
+ ["20 Nov 2026","Political Science II: Parliamentary system","Environmental Science: Pollution","Punjabi: Baba Farid and Shah Hussain"],
+ ["21 Nov 2026","GSA: Human body","European History: Unification of Germany","Current Affairs: India"],
+ ["22 Nov 2026","Political Science I: Democracy","Weekly test","Test correction"],
+ ["23 Nov 2026","Pakistan: Constitutional development 1947–1956","Criminology: Organized crime","Current Affairs: Afghanistan"],
+ ["24 Nov 2026","GSA: Nutrition and diseases","Environmental Science: Air and water pollution","Punjabi: Bulleh Shah"],
+ ["25 Nov 2026","Islamic Studies: Seerat, Madinan period","Political Science I: Political ideologies","Current Affairs: Russia-Ukraine"],
+ ["26 Nov 2026","Pakistan: Constitutions 1956 and 1962","European History: Industrial Revolution","Criminology: Terrorism"],
+ ["27 Nov 2026","Political Science II: Presidential system","Environmental Science: Climate change","Punjabi: Sultan Bahu"],
+ ["28 Nov 2026","GSA: Genetics","European History: Imperialism","Current Affairs: Global economy"],
+ ["29 Nov 2026","Political Science I: Liberalism and socialism","Weekly test","Test correction"],
+ ["30 Nov 2026","Pakistan: Constitution 1973","Criminology: Criminal justice system","Current Affairs: Debt and taxation"],
+ ["1 Dec 2026","GSA: Computer science and IT","Environmental Science: Soil and noise pollution","Punjabi: Waris Shah"],
+ ["2 Dec 2026","Islamic Studies: Human rights","Political Science I: Marxism","Current Affairs: Globalization"],
+ ["3 Dec 2026","Pakistan: Democracy and military rule","European History: First World War","Criminology: Police and courts"],
+ ["4 Dec 2026","Political Science II: UK political system","Environmental Science: Global warming","Punjabi: Heer"],
+ ["5 Dec 2026","GSA: Space science","European History: Russian Revolution","Current Affairs: AI and technology"],
+ ["6 Dec 2026","Political Science I: Plato and Aristotle","Weekly test","Test correction"],
+ ["7 Dec 2026","Pakistan: Governance and political instability","Criminology: Criminal investigation","Current Affairs: Governance"],
+ ["8 Dec 2026","GSA: Earth science and disasters","Environmental Science: EIA","Punjabi: Modern poetry"],
+ ["9 Dec 2026","Islamic Studies: Women's rights and social justice","Political Science I: Machiavelli and Hobbes","Current Affairs: Climate diplomacy"],
+ ["10 Dec 2026","Pakistan: Federalism and provincial autonomy","European History: Fascism and Nazism","Criminology: Forensic investigation"],
+ ["11 Dec 2026","Political Science II: US political system","Environmental Science: Waste management","Punjabi: Prose and fiction"],
+ ["12 Dec 2026","GSA: Mathematics and percentages","European History: Second World War","Current Affairs: International security"],
+ ["13 Dec 2026","Political Science I: Locke and Rousseau","Weekly test","Test correction"],
+ ["14 Dec 2026","Pakistan: Economy, poverty and energy crisis","Criminology: Interview and interrogation","Current Affairs: Pakistan economy"],
+ ["15 Dec 2026","GSA: Ratios and averages","Environmental Science: Environmental laws","Punjabi: Culture and traditions"],
+ ["16 Dec 2026","Islamic Studies: Islamic economic system","Political Science I: J.S. Mill and Marx","Current Affairs: OIC and SCO"],
+ ["17 Dec 2026","Pakistan: Foreign policy and CPEC","European History: Cold War","Criminology: Legal and ethical guidelines"],
+ ["18 Dec 2026","Political Science II: China and Russia","Environmental Science: Pakistan's environmental problems","Punjabi: Folk literature"],
+ ["19 Dec 2026","GSA: Algebra and probability","European History: European integration","Current Affairs: Global institutions"],
+ ["20 Dec 2026","Political Science I: Muslim political thinkers","Weekly test","Test correction"],
+ ["21 Dec 2026","Pakistan: Kashmir, India and Afghanistan","Criminology: Stop, arrest, search and seizure","Current Affairs: Regional affairs"],
+ ["22 Dec 2026","GSA: Logical reasoning and data interpretation","Environmental Science: International agreements","Punjabi: Literary criticism"],
+ ["23 Dec 2026","Islamic Studies: Ijtihad, Ijma and Qiyas","Political Science II: Pakistan political system","Current Affairs: Climate and water"],
+ ["24 Dec 2026","Pakistan: Water, population, education and security","European History: Revision","Criminology: International policing organizations"],
+ ["25 Dec 2026","GSA: Full syllabus revision","Environmental Science: Past-paper questions","Punjabi: Past-paper questions"]
+];
+
+const revisionWeeks = [
+ ["26 Dec 2026","Pakistan Affairs: Movement and history","GSA: Physics and Chemistry","Essay outline + Precis"],
+ ["27 Dec 2026","Criminology: Theories and crime","Weekly test","Review mistakes"],
+ ["28 Dec 2026","Pakistan: Constitutional history","Political Science I: Thinkers","Essay introduction"],
+ ["29 Dec 2026","Environmental Science: Ecosystems and pollution","Punjabi: Poetry","Precis + comprehension"],
+ ["30 Dec 2026","Islamic Studies: Seerat and human rights","Political Science II: UK and US","Essay outline"],
+ ["31 Dec 2026","European History: French Revolution to WWI","Current Affairs: Pakistan economy","Precis + grammar"],
+ ["1 Jan 2027","GSA: Mathematics and reasoning","Current Affairs: International relations","Mixed MCQs"],
+ ["2 Jan 2027","Pakistan: Economy and foreign policy","Criminology: Investigation and forensic science","Essay outline"],
+ ["3 Jan 2027","Political Science I: Western thinkers","Weekly test","Review mistakes"],
+ ["4 Jan 2027","GSA: Biology and computer science","Environmental Science: Climate and laws","Precis"],
+ ["5 Jan 2027","Islamic Studies: Political and economic system","Punjabi: Prose and literature","Essay introduction"],
+ ["6 Jan 2027","Political Science II: China, Russia and Pakistan","European History: WWII and Cold War","Precis"],
+ ["7 Jan 2027","Current Affairs: Major international issues","Pakistan Affairs: Past-paper questions","Essay outline"],
+ ["8 Jan 2027","Criminology: International policing and legal guidelines","Environmental Science: Past papers","Mixed MCQs"]
+];
+const mockWeeks = [
+ ["9 Jan 2027","Pakistan Affairs","Essay","Timed Pakistan Affairs answer"],
+ ["10 Jan 2027","GSA","Islamic Studies","GSA numerical test"],
+ ["11 Jan 2027","Political Science I","Political Science II","Two timed answers"],
+ ["12 Jan 2027","Criminology","Environmental Science","Two timed answers"],
+ ["13 Jan 2027","European History","Punjabi","Two timed answers"],
+ ["14 Jan 2027","Current Affairs","Pakistan Affairs","Current Affairs answer + outline"],
+ ["15 Jan 2027","Essay","Precis","Full Precis paper + essay practice"],
+ ["16 Jan 2027","Pakistan Affairs","Current Affairs","Timed past-paper section"],
+ ["17 Jan 2027","GSA","Islamic Studies","Full or half-paper test"],
+ ["18 Jan 2027","Political Science I","Political Science II","Timed long answers"],
+ ["19 Jan 2027","Criminology","Environmental Science","Timed long answers"],
+ ["20 Jan 2027","European History","Punjabi","Timed answers"],
+ ["21 Jan 2027","Essay","Precis","Timed essay and Precis"],
+ ["22 Jan 2027","All weak subjects","Short notes","Final mock and mistake review"],
+ ["23 Jan 2027","Pakistan Affairs, Current Affairs and Islamic Studies","Revision","Short notes and facts"],
+ ["24 Jan 2027","Political Science I & II, Criminology and Environmental Science","Revision","Key theories and examples"],
+ ["25 Jan 2027","GSA, European History and Punjabi","Revision","Formulas, dates and poetry"],
+ ["26 Jan 2027","Essay outlines and Precis rules","Light revision","Rest and prepare for exam"]
+];
+
+const allSchedule = [
+ ...firstWeeks.map(x=>({date:x[0],a:x[1],b:x[2],c:x[3],phase:1})),
+ ...revisionWeeks.map(x=>({date:x[0],a:x[1],b:x[2],c:x[3],phase:2})),
+ ...mockWeeks.slice(0,14).map(x=>({date:x[0],a:x[1],b:x[2],c:x[3],phase:3})),
+ ...mockWeeks.slice(14).map(x=>({date:x[0],a:x[1],b:x[2],c:x[3],phase:4}))
+];
+
+const STORAGE_KEY="css2027_dashboard_v1";
+let state = {completed:{},daily:{},notes:{},tests:[],english:{},scheduleDone:{}};
+function loadState(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY));if(s)state={...state,...s};}catch(e){}}
+function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updateStats();}
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-");}
+function dateKey(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function parsePlanDate(s){return new Date(s+" 12:00:00");}
+function fmtDate(d){return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"});}
+function todayPlan(){const today=new Date();return allSchedule.find(x=>{const d=parsePlanDate(x.date);return d.toDateString()===today.toDateString();})||null;}
+function dayChecklistItems(){return ["Complete Session 1 (2 hours)","Complete Session 2 (2 hours)","Complete Session 3 (90 minutes)","Essay practice (60 minutes)","Precis & Composition (60 minutes)","Newspaper / current affairs reading","Revise yesterday's notes"];}
+function renderDailyChecklist(){
+ const key=dateKey();state.daily[key]=state.daily[key]||{};
+ const el=document.getElementById("dailyChecklist");el.innerHTML="";
+ dayChecklistItems().forEach((t,i)=>{const id="daily-"+i;const label=document.createElement("label");label.className="flex gap-3 items-start text-sm cursor-pointer";label.innerHTML=`<input type="checkbox" class="mt-1 accent-teal-400" ${state.daily[key][i]?"checked":""}/><span class="${state.daily[key][i]?"line-through text-slate-500":"text-slate-200"}">${t}</span>`;label.querySelector("input").onchange=e=>{state.daily[key][i]=e.target.checked;saveState();renderDailyChecklist();};el.appendChild(label);});
+ const n=Object.values(state.daily[key]).filter(Boolean).length;document.getElementById("dailyPercent").textContent=Math.round(n/7*100)+"%";
+}
+function renderTodaySchedule(){
+ const el=document.getElementById("todaySchedule");const p=todayPlan();
+ const items=p?[["7:00–9:00 AM",p.a],["9:30–11:30 AM",p.b],["1:00–2:30 PM",p.c],["4:00–5:00 PM","English Essay"],["7:00–8:00 PM","Precis & Composition"]]:[["7:00–9:00 AM","Follow weekly rotation"],["9:30–11:30 AM","Follow weekly rotation"],["1:00–2:30 PM","Weekly test / review"],["4:00–5:00 PM","English Essay"],["7:00–8:00 PM","Precis & Composition"]];
+ el.innerHTML=items.map(x=>`<div class="flex gap-3"><div class="text-xs font-bold text-blue-600 w-28 shrink-0 pt-1">${x[0]}</div><div class="text-sm font-medium">${x[1]}</div></div>`).join("");
+}
+function updateStats(){
+ let total=0,done=0;subjects.forEach(s=>s.topics.forEach((t,i)=>{total++;if(state.completed[slug(s.name)+"-"+i])done++;}));
+ const pct=total?Math.round(done/total*100):0;
+ document.getElementById("overallPercent").textContent=pct+"%";document.getElementById("overallBar").style.width=pct+"%";document.getElementById("topicCount").textContent=done+" of "+total+" topics completed";
+ document.getElementById("notesCount").textContent=Object.keys(state.notes).length;
+ const now=new Date();const exam=new Date("2027-01-27T09:00:00");const days=Math.max(0,Math.ceil((exam-now)/86400000));document.getElementById("daysLeft").textContent=days;document.getElementById("countdown").textContent=days+" days";
+ const wrap=document.getElementById("subjectProgress");if(wrap){wrap.innerHTML=subjects.map(s=>{let d=0;s.topics.forEach((t,i)=>{if(state.completed[slug(s.name)+"-"+i])d++;});let p=Math.round(d/s.topics.length*100);return `<div><div class="flex justify-between text-sm mb-2"><span class="font-semibold">${s.name}</span><span class="text-slate-500">${p}%</span></div><div class="progress-track"><div class="progress-fill" style="width:${p}%"></div></div></div>`;}).join("");}
+ renderSavedNotes();
+}
+function showView(name){
+ document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
+ document.getElementById("view-"+name).classList.remove("hidden");
+ document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("nav-active",b.dataset.view===name));
+ const titles={dashboard:"Your study dashboard",timetable:"Your daily timetable",calendar:"Date-wise study plan",subjects:"Subjects & topic tracker",notes:"Your personal CSS notes",english:"Essay & Precis practice",tests:"Tests & past-paper tracker"};
+ document.getElementById("pageTitle").textContent=titles[name]||"CSS 2027";
+ if(name==="subjects")renderSubjects();if(name==="calendar")renderCalendar();if(name==="english")renderEnglish();if(name==="tests")renderTests();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".nav-btn").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));
+function renderRotation(){document.getElementById("weeklyRotation").innerHTML=rotation.map(r=>`<tr class="border-b last:border-0"><td class="py-3 font-semibold">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");}
+function renderCalendar(){
+ const filter=document.getElementById("calendarFilter").value;const el=document.getElementById("calendarList");
+ el.innerHTML=allSchedule.filter(x=>filter==="all"||x.phase==filter).map((x,i)=>{const key=slug(x.date);const done=!!state.scheduleDone[key];return `<div class="border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3"><input aria-label="Complete day" type="checkbox" class="accent-blue-600 w-5 h-5" ${done?"checked":""} onchange="state.scheduleDone['${key}']=this.checked;saveState();renderCalendar()"/><div class="sm:w-32 shrink-0"><div class="font-bold text-sm">${x.date}</div><div class="text-xs text-slate-500">Phase ${x.phase}</div></div><div class="grid sm:grid-cols-3 gap-2 flex-1 text-sm"><div><span class="text-xs text-slate-400 block">Session 1</span>${x.a}</div><div><span class="text-xs text-slate-400 block">Session 2</span>${x.b}</div><div><span class="text-xs text-slate-400 block">Session 3</span>${x.c}</div></div><span class="text-xs ${done?"text-teal-700":"text-slate-400"}">${done?"Day complete":"Mark day complete"}</span></div>`;}).join("");
+}
+function renderSubjects(){
+ const q=(document.getElementById("subjectSearch").value||"").toLowerCase();const el=document.getElementById("subjectList");el.innerHTML="";
+ subjects.forEach((s,si)=>{const matches=s.topics.map((t,i)=>({t,i})).filter(o=>(s.name+" "+o.t).toLowerCase().includes(q));if(!matches.length)return;
+ let done=s.topics.filter((t,i)=>state.completed[slug(s.name)+"-"+i]).length;let box=document.createElement("div");box.className="border rounded-2xl overflow-hidden";
+ box.innerHTML=`<button class="w-full text-left p-4 bg-slate-50 flex justify-between items-center gap-3" onclick="this.nextElementSibling.classList.toggle('hidden')"><span><b>${s.name}</b><span class="block text-xs text-slate-500 mt-1">${s.group} • ${done}/${s.topics.length} topics complete</span></span><span class="text-sm font-bold text-blue-600">${Math.round(done/s.topics.length*100)}%　⌄</span></button><div class="p-3 space-y-1">${matches.map(o=>{const k=slug(s.name)+"-"+o.i;const checked=!!state.completed[k];return `<div class="topic-row rounded-lg px-2 py-2 flex gap-3 items-start"><input type="checkbox" class="mt-1 accent-blue-600" ${checked?"checked":""} onchange="state.completed['${k}']=this.checked;saveState();renderSubjects()"/><button class="text-left text-sm flex-1 ${checked?"line-through text-slate-400":""}" onclick="openTopicNote(${si},${o.i})">${o.t}</button><button class="text-xs text-blue-600 no-print" onclick="openTopicNote(${si},${o.i})">Add note</button></div>`;}).join("")}</div>`;
+ el.appendChild(box);
+ });
+}
+function populateNoteSubjects(){const sel=document.getElementById("noteSubject");sel.innerHTML=subjects.map((s,i)=>`<option value="${i}">${s.name}</option>`).join("");populateNoteTopics();}
+function populateNoteTopics(){const si=+document.getElementById("noteSubject").value;document.getElementById("noteTopic").innerHTML=subjects[si].topics.map((t,i)=>`<option value="${i}">${t}</option>`).join("");loadNote();}
+function noteKey(){return slug(subjects[+document.getElementById("noteSubject").value].name)+"-"+document.getElementById("noteTopic").value;}
+function loadNote(){if(!document.getElementById("noteSubject").value)return;const n=state.notes[noteKey()]||{};document.getElementById("noteTitle").value=n.title||subjects[+document.getElementById("noteSubject").value].topics[+document.getElementById("noteTopic").value];document.getElementById("noteBody").value=n.body||"";document.getElementById("noteStatus").textContent=n.body?"Saved note loaded.":"No note saved for this topic yet.";}
+function saveNote(){const k=noteKey();state.notes[k]={title:document.getElementById("noteTitle").value,body:document.getElementById("noteBody").value,subject:subjects[+document.getElementById("noteSubject").value].name,topic:subjects[+document.getElementById("noteSubject").value].topics[+document.getElementById("noteTopic").value],updated:new Date().toLocaleString()};saveState();document.getElementById("noteStatus").textContent="Saved automatically on this device • "+new Date().toLocaleTimeString();renderSavedNotes();}
+function clearNoteEditor(){document.getElementById("noteTitle").value="";document.getElementById("noteBody").value="";document.getElementById("noteStatus").textContent="New note. Choose a subject and topic before saving.";}
+function deleteNote(){if(!confirm("Delete this note?"))return;delete state.notes[noteKey()];saveState();loadNote();}
+function openTopicNote(si,ti){showView("notes");document.getElementById("noteSubject").value=si;populateNoteTopics();document.getElementById("noteTopic").value=ti;loadNote();}
+function renderSavedNotes(){const el=document.getElementById("savedNotes");if(!el)return;const entries=Object.entries(state.notes);el.innerHTML=entries.length?entries.map(([k,n])=>`<button class="w-full text-left border rounded-xl p-3 hover:bg-slate-50" onclick="selectSavedNote('${k}')"><b>${escapeHtml(n.title||n.topic||"Untitled")}</b><span class="block text-xs text-slate-500">${escapeHtml(n.subject||"")} • ${escapeHtml(n.updated||"")}</span></button>`).join(""):'<p class="text-slate-500">No notes saved yet. Open a topic and start writing.</p>';}
+function selectSavedNote(k){const n=state.notes[k];const si=subjects.findIndex(s=>s.name===n.subject);if(si<0)return;showView("notes");document.getElementById("noteSubject").value=si;populateNoteTopics();const ti=subjects[si].topics.indexOf(n.topic);if(ti>=0)document.getElementById("noteTopic").value=ti;loadNote();}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+const englishTasks={essay:["Write one essay outline","Write or improve a thesis statement","Practise one introduction or conclusion","Collect two examples or arguments"],precis:["Read one passage and identify its central idea","Write one précis or summary","Learn five vocabulary words","Complete one grammar exercise"]};
+function renderEnglish(){["essay","precis"].forEach(type=>{const el=document.getElementById(type+"Tasks");el.innerHTML=englishTasks[type].map((t,i)=>{const k=type+"-"+dateKey()+"-"+i;return `<label class="flex gap-2 text-sm"><input type="checkbox" class="accent-blue-600" ${state.english[k]?"checked":""} onchange="state.english['${k}']=this.checked;saveState()"/>${t}</label>`;}).join("");});document.getElementById("essayBank").innerHTML=["Education","Democracy","Governance","Climate change","Artificial intelligence","Pakistan's economy","Women empowerment","Globalization","Social media","International relations"].map(t=>`<span class="bg-slate-100 rounded-full px-3 py-1.5 text-xs">${t}</span>`).join("");}
+function renderTests(){document.getElementById("testResults").innerHTML=state.tests.length?state.tests.slice().reverse().map((t,i)=>`<div class="border rounded-xl p-3 flex flex-wrap justify-between gap-2"><div><b>${escapeHtml(t.subject)}</b><div class="text-xs text-slate-500">${escapeHtml(t.date)} • ${escapeHtml(t.details||"")}</div></div><div class="font-bold">${t.score}/${t.outOf} (${Math.round(t.score/t.outOf*100)}%)</div><button class="text-xs text-red-600" onclick="removeTest(${state.tests.length-1-i})">Delete</button></div>`).join(""):'<p class="text-sm text-slate-500">No tests recorded yet.</p>';}
+function removeTest(i){state.tests.splice(i,1);saveState();renderTests();}
+document.getElementById("testForm").addEventListener("submit",e=>{e.preventDefault();const score=+document.getElementById("testScore").value,outOf=+document.getElementById("testOutOf").value;if(score>outOf){alert("Marks obtained cannot be greater than total marks.");return;}state.tests.push({date:document.getElementById("testDate").value,subject:document.getElementById("testSubject").value,score,outOf,details:document.getElementById("testDetails").value});saveState();e.target.reset();document.getElementById("testOutOf").value=20;renderTests();});
+function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="css-2027-progress-backup.json";a.click();URL.revokeObjectURL(a.href);}
+function init(){
+ loadState();
+ const now=new Date();document.getElementById("todayLabel").textContent=fmtDate(now)+" • Keep your daily study blocks consistent.";
+ document.getElementById("testDate").value=dateKey();
+ document.getElementById("testSubject").innerHTML=subjects.map(s=>`<option>${s.name}</option>`).join("");
+ renderRotation();renderDailyChecklist();renderTodaySchedule();updateStats();populateNoteSubjects();renderCalendar();renderEnglish();renderTests();
+ // Autosave the current note editor as the user types.
+ ["noteTitle","noteBody"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{document.getElementById("noteStatus").textContent="Unsaved changes — press Save note."; }));
+}
+init();
+</script>
+</body>
+</html>
